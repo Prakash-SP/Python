@@ -20,7 +20,7 @@ class TwitterClient(object):
     def clean_tweet(self, tweet):
         return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
-    def get_tweet_sentiment(self,tweet):
+    def get_tweet_sentiment(self, tweet):
         analysis = TextBlob(self.clean_tweet(tweet))
         if analysis.sentiment.polarity > 0:
             return 'positive'
@@ -35,6 +35,10 @@ class TwitterClient(object):
             fetched_tweets = self.api.search(q=query, count=count)
             for tweet in fetched_tweets:
                 parsed_tweet = {'text': tweet.text, 'sentiments': self.get_tweet_sentiment(tweet.text)}
+
+                tweetid = tweet._json['id']
+                self.api.update_status(parsed_tweet['sentiments']+'@murli_wala', tweetid)
+
                 if tweet.retweet_count > 0:
                     if parsed_tweet not in tweets:
                         tweets.append(parsed_tweet)
