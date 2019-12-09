@@ -36,8 +36,10 @@ class TwitterClient(object):
             for tweet in fetched_tweets:
                 parsed_tweet = {'text': tweet.text, 'sentiments': self.get_tweet_sentiment(tweet.text)}
 
-                tweetid = tweet._json['id']
-                self.api.update_status(parsed_tweet['sentiments']+'@murli_wala', tweetid)
+                # tweetid = tweet._json['id']
+                # self.api.update_status(parsed_tweet['sentiments']+'@murli_wala', tweetid)
+                # screenname = tweet._json['user']['screen_name']
+                # self.api.update_status(status='@'+screenname+' '+parsed_tweet['sentiments'], in_reply_to_status=tweetid, auto_populate_reply_metadata=True)
 
                 if tweet.retweet_count > 0:
                     if parsed_tweet not in tweets:
