@@ -1,7 +1,10 @@
 import re
 import tweepy
+import googletrans
+from googletrans import Translator
 from tweepy import OAuthHandler
 from textblob import TextBlob
+translator = Translator()
 
 
 class TwitterClient(object):
@@ -34,7 +37,17 @@ class TwitterClient(object):
         try:
             fetched_tweets = self.api.search(q=query, count=count)
             for tweet in fetched_tweets:
-                parsed_tweet = {'text': tweet.text, 'sentiments': self.get_tweet_sentiment(tweet.text)}
+                langlist = googletrans.LANGUAGES
+                tweetlang = translator.detect(tweet.text)
+                if tweetlang.lang in langlist:
+                    if tweetlang != "en":
+                        transtweet = translator.translate(tweet.text, src=tweetlang.lang, dest='en')
+                    else:
+                        transtweet = tweet
+                else:
+                    transtweet = tweet
+
+                parsed_tweet = {'text': tweet.text, 'trtweet': transtweet.text, 'sentiments': self.get_tweet_sentiment(transtweet.text)}
 
                 # tweetid = tweet._json['id']
                 # self.api.update_status(parsed_tweet['sentiments']+'@murli_wala', tweetid)
@@ -48,6 +61,7 @@ class TwitterClient(object):
                     tweets.append(parsed_tweet)
             for x in tweets:
                 print("Tweet : ", x['text'])
+                print("Translated_Tweet : ", x['trtweet'])
                 print("Sentiment :", x['sentiments'])
             return tweets
         except tweepy.TweepError as e:
